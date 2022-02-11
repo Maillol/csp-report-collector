@@ -1,23 +1,34 @@
 #!/usr/bin/env python3
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 # Standard library imports
 from urllib.parse import urlparse
 from datetime import datetime
+from os import getenv
 import html
 import json
 import logging
 import os
+import sys
 
 # Third party library imports
 from configparser import ConfigParser, NoOptionError
 from flask import Flask, jsonify, abort, make_response, request
 from pymongo import MongoClient
+from urllib.parse import urlparse
 
 # Debug
 # from pdb import set_trace as st
 
+#mongo_host = (getenv('CSP_MONGO_HOST', 'localhost'))
+#mongo_port = (getenv('CSP_MONGO_PORT', 27017))
+#mongo_user = (getenv('CSP_MONGO_USER', None))
+#mongo_pass = (getenv('CSP_MONGO_PASS', None))
+#mongo_database = (getenv('CSP_MONGO_DATABASE', 'csp_reports'))
+#mongo_connection_string = (getenv('CSP_MONGO_CONNECTION_STRING', f'mongodb://{mongo_host}:{mongo_port}/{mongo_database}'))
+
 app = Flask(__name__)
+#mongo = MongoClient(mongo_connection_string, username=mongo_user, password=mongo_pass)
 
 if "REPORT_API_PATH" in os.environ:
     REPORT_API_PATH = os.environ["REPORT_API_PATH"]
@@ -81,14 +92,34 @@ def error_405(error):
     }), 405)
 
 
+## GET /
+@app.route('/')
+def foo():
+    return make_response('OK', 200)
+
+
+## POST /
 @app.route(REPORT_API_PATH, methods=['POST'])
 def csp_receiver():
+    logger = logging.getLogger(__name__)
+
     ## https://junxiandoc.readthedocs.io/en/latest/docs/flask/flask_request_response.html
     if request.content_type != "application/csp-report":
         abort(400)
 
+    if not request.data:
+        abort(400, "JSON data was not provided")
+
     csp_report = json.loads(request.data.decode('UTF-8'))['csp-report']
-    logging.info(f'{datetime.now()} {request.remote_addr} {request.content_type} {csp_report}')
+
+    if 'X-Real-IP' in request.headers:
+        x_real_ip = request.headers['X-Real-IP']
+        logger.info(f'{datetime.now()} {request.remote_addr} {x_real_ip} {request.content_type} {csp_report}')
+    elif 'X-Forwarded-For' in request.headers:
+        x_forwarded_for = request.headers['X-Forwarded-For']
+        logger.info(f'{datetime.now()} {request.remote_addr} {x_forwarded_for} {request.content_type} {csp_report}')
+    else:
+        logger.info(f'{datetime.now()} {request.remote_addr} - {request.content_type} {csp_report}')
 
     blocked_uri = html.escape(csp_report['blocked-uri'], quote=True).split(' ', 1)[0]
     document_uri = html.escape(csp_report['document-uri'], quote=True).split(' ', 1)[0]
@@ -107,7 +138,7 @@ def csp_receiver():
     if OPTIONS["mongodb"]["enable"]:
         domain = urlparse(document_uri).hostname
         collection = DB[domain]
-        post = {"blocked_uri": blocked_uri, "violated_directive": violated_directive}
+        post = {"document_uri": document_uri, "blocked_uri": blocked_uri, "violated_directive": violated_directive}
 
         document = collection.find_one(post)
 
@@ -117,6 +148,9 @@ def csp_receiver():
             document_id = collection.insert_one(post).inserted_id
 
         collection.update_one({'_id': document_id}, {"$set": {'last_updated': datetime.datetime.now()}, '$inc': {'count': 1}})
+
+    if 'py.test' in sys.modules:
+        print(f'{{"_id": "{document_id}"}}')
 
     return make_response('', 204)
 
