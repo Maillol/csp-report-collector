@@ -120,7 +120,8 @@ def csp_receiver():
         elif violated_directive == "style-src":
             blocked_uri = "inline"
 
-    if OPTIONS["mongodb"]["enable"] or True:
+    # if OPTIONS["mongodb"]["enable"] or True:
+    if True:
         domain = urlparse(document_uri).hostname
         collection = client[mongo_database][domain]
         post = {
@@ -162,10 +163,10 @@ def get_version():
     return make_response(jsonify(response))
 
 
-OPTIONS = read_conf("settings.conf")
-MONGO_CONNECTION_STRING = "mongodb://{}:{}".format(OPTIONS["mongodb"]["host"], OPTIONS["mongodb"]["port"])
-CLIENT = MongoClient(MONGO_CONNECTION_STRING, username=OPTIONS["mongodb"]["user"], password=OPTIONS["mongodb"]["pass"],)
-DB = CLIENT[OPTIONS["mongodb"]["database"]]
+# OPTIONS = read_conf("settings.conf")
+# MONGO_CONNECTION_STRING = "mongodb://{}:{}".format(OPTIONS["mongodb"]["host"], OPTIONS["mongodb"]["port"])
+# CLIENT = MongoClient(MONGO_CONNECTION_STRING, username=OPTIONS["mongodb"]["user"], password=OPTIONS["mongodb"]["pass"],)
+# DB = CLIENT[OPTIONS["mongodb"]["database"]]
 
 
 if __name__ == "__main__":
