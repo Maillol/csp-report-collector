@@ -1,5 +1,5 @@
 # csp-report-collector
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![GitHub Actions](https://github.com/finalduty/csp-report-collector/actions/workflows/build.yml/badge.svg)](https://github.com/finalduty/csp-report-collector/actions/workflows/build.yml) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Content-Security-Policy Report Collector
 
