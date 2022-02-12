@@ -4,20 +4,24 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [packages]
+configparser = "*"
 flask = "*"
-pymongo = "*"
 gevent = "*"
-mongomock = "*"
-flask-pymongo = "*"
+gunicorn = "*"
+pymongo = "*"
 
 [dev-packages]
-pytest = "*"
-vermin = "*"
 coverage = "*"
+flake8 = "*"
+mongomock = "*"
+pylint = "*"
+pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"
-pylint = "*"
-flake8 = "*"
+vermin = "*"
+pipenv-setup = "*"
+twine = "*"
+black = "*"
 
 [requires]
 python_version = "3"

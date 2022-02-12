@@ -1,9 +1,10 @@
 [flake8]
-ignore = E501 E266
+ignore = 
+    E501 E265 E266
+    
 exclude =
+    .archive,
     .git,
     __pycache__,
-    docs/source/conf.py,
-    old,
     build,
-    dist
+    dist,

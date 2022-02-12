@@ -1,8 +1,9 @@
 # csp-report-collector
-Content Security Policy Report Collector
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
+Content-Security-Policy Report Collector
 
-Python Flask App to receive CSP reports from browsers and store them in MongoDB.
+A Python Flask app to receive and store Content-Security-Policy reports
 
 
 ## Python Dependencies
